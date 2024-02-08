@@ -1,0 +1,25 @@
+
+syntax = "proto3";
+
+
+// the pb package
+package toy.temporal.api.workflow;
+
+option go_package = "github.com/maki3cat/toy-temporal/api-go/workflow;workflow";
+option java_package = "io.maki.toy.temporal.api";
+option java_multiple_files = true;
+option java_outer_classname = "MessageProto";
+
+
+service WorkflowExecution {
+  rpc StartWorkflowExecution (StartWorkflowExecutionRequest) returns (StartWorkflowExecutionResponse) {}
+}
+
+message StartWorkflowExecutionRequest {
+  string execution_id = 1;
+  string payload = 2;
+}
+
+message StartWorkflowExecutionResponse {
+  string run_id = 1;
+}
