@@ -18,86 +18,126 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// WorkflowExecutionClient is the client API for WorkflowExecution service.
+// WorkflowClient is the client API for Workflow service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type WorkflowExecutionClient interface {
+type WorkflowClient interface {
+	// state
 	StartWorkflowExecution(ctx context.Context, in *StartWorkflowExecutionRequest, opts ...grpc.CallOption) (*StartWorkflowExecutionResponse, error)
+	// queue
+	PollWorkflowTask(ctx context.Context, in *PollWorkflowTaskRequest, opts ...grpc.CallOption) (*PollWorkflowTaskResponse, error)
 }
 
-type workflowExecutionClient struct {
+type workflowClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewWorkflowExecutionClient(cc grpc.ClientConnInterface) WorkflowExecutionClient {
-	return &workflowExecutionClient{cc}
+func NewWorkflowClient(cc grpc.ClientConnInterface) WorkflowClient {
+	return &workflowClient{cc}
 }
 
-func (c *workflowExecutionClient) StartWorkflowExecution(ctx context.Context, in *StartWorkflowExecutionRequest, opts ...grpc.CallOption) (*StartWorkflowExecutionResponse, error) {
+func (c *workflowClient) StartWorkflowExecution(ctx context.Context, in *StartWorkflowExecutionRequest, opts ...grpc.CallOption) (*StartWorkflowExecutionResponse, error) {
 	out := new(StartWorkflowExecutionResponse)
-	err := c.cc.Invoke(ctx, "/toy.temporal.api.workflow.WorkflowExecution/StartWorkflowExecution", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/toy.temporal.api.workflow.Workflow/StartWorkflowExecution", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// WorkflowExecutionServer is the server API for WorkflowExecution service.
-// All implementations must embed UnimplementedWorkflowExecutionServer
+func (c *workflowClient) PollWorkflowTask(ctx context.Context, in *PollWorkflowTaskRequest, opts ...grpc.CallOption) (*PollWorkflowTaskResponse, error) {
+	out := new(PollWorkflowTaskResponse)
+	err := c.cc.Invoke(ctx, "/toy.temporal.api.workflow.Workflow/PollWorkflowTask", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// WorkflowServer is the server API for Workflow service.
+// All implementations must embed UnimplementedWorkflowServer
 // for forward compatibility
-type WorkflowExecutionServer interface {
+type WorkflowServer interface {
+	// state
 	StartWorkflowExecution(context.Context, *StartWorkflowExecutionRequest) (*StartWorkflowExecutionResponse, error)
-	mustEmbedUnimplementedWorkflowExecutionServer()
+	// queue
+	PollWorkflowTask(context.Context, *PollWorkflowTaskRequest) (*PollWorkflowTaskResponse, error)
+	mustEmbedUnimplementedWorkflowServer()
 }
 
-// UnimplementedWorkflowExecutionServer must be embedded to have forward compatible implementations.
-type UnimplementedWorkflowExecutionServer struct {
+// UnimplementedWorkflowServer must be embedded to have forward compatible implementations.
+type UnimplementedWorkflowServer struct {
 }
 
-func (UnimplementedWorkflowExecutionServer) StartWorkflowExecution(context.Context, *StartWorkflowExecutionRequest) (*StartWorkflowExecutionResponse, error) {
+func (UnimplementedWorkflowServer) StartWorkflowExecution(context.Context, *StartWorkflowExecutionRequest) (*StartWorkflowExecutionResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StartWorkflowExecution not implemented")
 }
-func (UnimplementedWorkflowExecutionServer) mustEmbedUnimplementedWorkflowExecutionServer() {}
+func (UnimplementedWorkflowServer) PollWorkflowTask(context.Context, *PollWorkflowTaskRequest) (*PollWorkflowTaskResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method PollWorkflowTask not implemented")
+}
+func (UnimplementedWorkflowServer) mustEmbedUnimplementedWorkflowServer() {}
 
-// UnsafeWorkflowExecutionServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to WorkflowExecutionServer will
+// UnsafeWorkflowServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to WorkflowServer will
 // result in compilation errors.
-type UnsafeWorkflowExecutionServer interface {
-	mustEmbedUnimplementedWorkflowExecutionServer()
+type UnsafeWorkflowServer interface {
+	mustEmbedUnimplementedWorkflowServer()
 }
 
-func RegisterWorkflowExecutionServer(s grpc.ServiceRegistrar, srv WorkflowExecutionServer) {
-	s.RegisterService(&WorkflowExecution_ServiceDesc, srv)
+func RegisterWorkflowServer(s grpc.ServiceRegistrar, srv WorkflowServer) {
+	s.RegisterService(&Workflow_ServiceDesc, srv)
 }
 
-func _WorkflowExecution_StartWorkflowExecution_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _Workflow_StartWorkflowExecution_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(StartWorkflowExecutionRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(WorkflowExecutionServer).StartWorkflowExecution(ctx, in)
+		return srv.(WorkflowServer).StartWorkflowExecution(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/toy.temporal.api.workflow.WorkflowExecution/StartWorkflowExecution",
+		FullMethod: "/toy.temporal.api.workflow.Workflow/StartWorkflowExecution",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(WorkflowExecutionServer).StartWorkflowExecution(ctx, req.(*StartWorkflowExecutionRequest))
+		return srv.(WorkflowServer).StartWorkflowExecution(ctx, req.(*StartWorkflowExecutionRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// WorkflowExecution_ServiceDesc is the grpc.ServiceDesc for WorkflowExecution service.
+func _Workflow_PollWorkflowTask_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PollWorkflowTaskRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkflowServer).PollWorkflowTask(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/toy.temporal.api.workflow.Workflow/PollWorkflowTask",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkflowServer).PollWorkflowTask(ctx, req.(*PollWorkflowTaskRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// Workflow_ServiceDesc is the grpc.ServiceDesc for Workflow service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var WorkflowExecution_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "toy.temporal.api.workflow.WorkflowExecution",
-	HandlerType: (*WorkflowExecutionServer)(nil),
+var Workflow_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "toy.temporal.api.workflow.Workflow",
+	HandlerType: (*WorkflowServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "StartWorkflowExecution",
-			Handler:    _WorkflowExecution_StartWorkflowExecution_Handler,
+			Handler:    _Workflow_StartWorkflowExecution_Handler,
+		},
+		{
+			MethodName: "PollWorkflowTask",
+			Handler:    _Workflow_PollWorkflowTask_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

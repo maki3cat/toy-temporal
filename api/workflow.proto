@@ -11,8 +11,12 @@ option java_multiple_files = true;
 option java_outer_classname = "MessageProto";
 
 
-service WorkflowExecution {
+service Workflow {
+  // state
   rpc StartWorkflowExecution (StartWorkflowExecutionRequest) returns (StartWorkflowExecutionResponse) {}
+
+  // queue
+  rpc PollWorkflowTask (PollWorkflowTaskRequest) returns (PollWorkflowTaskResponse) {}
 }
 
 message StartWorkflowExecutionRequest {
@@ -22,4 +26,15 @@ message StartWorkflowExecutionRequest {
 
 message StartWorkflowExecutionResponse {
   string run_id = 1;
+}
+
+
+message PollWorkflowTaskRequest{
+  string worker_id = 1;
+}
+
+message PollWorkflowTaskResponse{
+  string run_id = 1;
+  string task_id = 2;
+  string payload = 3;
 }

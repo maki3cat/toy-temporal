@@ -2,21 +2,12 @@ package main
 
 import (
 	"context"
-	"flag"
 
 	"github.com/google/uuid"
 	pb "github.com/maki3cat/toy-temporal/api-go/workflow"
 )
 
-var (
-	port = flag.Int("port", 50051, "The server port")
-)
-
-type workflowExecutionServer struct {
-	pb.UnimplementedWorkflowExecutionServer
-}
-
-func (workflowExecutionServer) StartWorkflowExecution(ctx context.Context, req *pb.StartWorkflowExecutionRequest) (*pb.StartWorkflowExecutionResponse, error) {
+func StartWorkflowExecutionHandler(ctx context.Context, req *pb.StartWorkflowExecutionRequest) (*pb.StartWorkflowExecutionResponse, error) {
 
 	runId, err := uuid.NewUUID()
 	if err != nil {
