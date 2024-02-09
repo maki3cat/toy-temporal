@@ -3,11 +3,23 @@ package main
 import (
 	"context"
 
-	"github.com/gogo/status"
 	pb "github.com/maki3cat/toy-temporal/api-go/workflow"
-	"google.golang.org/grpc/codes"
 )
 
-func PollWorkflowTaskHandler(ctx context.Context, pb *pb.PollWorkflowTaskRequest) (*pb.PollWorkflowTaskResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method PollWorkflowTask not implemented")
+func PollWorkflowTaskHandler(ctx context.Context, req *pb.PollWorkflowTaskRequest) (*pb.PollWorkflowTaskResponse, error) {
+
+	taskEntity, err := workflowStorageInstance.pollPendingWorkflowTask()
+	if err != nil {
+		return nil, err
+	}
+
+	res := &pb.PollWorkflowTaskResponse{}
+	if taskEntity == nil {
+		return res, nil
+	}
+	res.TaskId = taskEntity.TaskId
+	res.RunId = taskEntity.RunId
+	res.Payload = taskEntity.TaskPayload
+
+	return res, nil
 }

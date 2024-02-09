@@ -1,0 +1,3 @@
+test-scriptsgrpcurl -plaintext -d '{"execution_id": "test-01", "payload":"test-payload-01"}' localhost:50051 toy.temporal.api.workflow.Workflow.StartWorkflowExecution
+
+grpcurl -plaintext localhost:50051 toy.temporal.api.workflow.Workflow.PollWorkflowTask
